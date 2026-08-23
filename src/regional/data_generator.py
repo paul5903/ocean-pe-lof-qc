@@ -1,57 +1,43 @@
-# -*- coding: utf-8 -*-
-"""
-Synthetic Oceanographic CTD Profile Generator:
-Generates physically realistic CTD vertical profiles with thermocline, halocline,
-and acoustic channels, along with controlled sensor anomaly injections for reproducible benchmarking.
-"""
 import argparse
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from . import physics_engine, config
-
+from .. import config
+from ..core import physics_engine
 
 def generate_synthetic_profile(
     profile_id: str,
     lat: float = 15.0,
     lon: float = 112.0,
-    n_levels: int = 50,
+    n_levels: int = 40,
     max_depth: float = 2000.0,
     inject_anomaly: bool = False,
     anomaly_type: str = "spike",
     random_seed: int = 42
 ) -> pd.DataFrame:
-    """
-    Generates a single synthetic ocean vertical profile obeying oceanographic dynamics.
-    """
     rng = np.random.RandomState(random_seed)
 
     depths = np.linspace(5.0, max_depth, n_levels)
     pressures = depths * config.PRESSURE_RATIO_APPROX + rng.normal(0, 0.05, n_levels)
 
-    # 1. Physical Thermocline Profile: Surface mixed layer + thermocline decay + deep cold layer
     t_surf = 28.0 + rng.normal(0, 0.5)
     t_deep = 2.5 + rng.normal(0, 0.2)
-    z_therm = 150.0  # Thermocline depth (m)
+    z_therm = 150.0
     scale_therm = 100.0
     temperatures = t_deep + (t_surf - t_deep) / (1.0 + np.exp((depths - z_therm) / scale_therm))
     temperatures += rng.normal(0, 0.05, n_levels)
 
-    # 2. Physical Halocline Profile: Surface fresher + subsurface salinity maximum + deep stable
     s_surf = 33.8 + rng.normal(0, 0.2)
     s_max = 34.6
     s_deep = 34.7
     salinities = s_surf + (s_max - s_surf) * np.exp(-((depths - 120.0) / 80.0)**2) + (s_deep - s_surf) * (depths / max_depth) * 0.5
     salinities += rng.normal(0, 0.02, n_levels)
 
-    # 3. Direct Mackenzie Acoustic Speed
     sound_speeds = physics_engine.calculate_mackenzie_sound_velocity(temperatures, salinities, depths)
     sound_speeds += rng.normal(0, 0.1, n_levels)
 
-    # Ground truth flags
     ground_truth = np.zeros(n_levels, dtype=int)
 
-    # 4. Inject Controlled Anomalies if requested
     if inject_anomaly:
         candidate_pool = np.arange(5, n_levels - 5) if n_levels > 12 else np.arange(n_levels)
         inject_size = max(1, min(len(candidate_pool), int(n_levels * 0.1)))
@@ -66,10 +52,10 @@ def generate_synthetic_profile(
             temperatures[inject_indices] = temperatures[inject_indices[0]]
             sound_speeds[inject_indices] = sound_speeds[inject_indices[0]]
         elif anomaly_type == "acoustic_inconsistency":
-            sound_speeds[inject_indices] += 45.0  # Violates Mackenzie relationship
+            sound_speeds[inject_indices] += 45.0
 
     df_prof = pd.DataFrame({
-        "source": "Synthetic_Benchmark",
+        "source": "Regional_Synthetic_Benchmark",
         "profile_id": profile_id,
         "station_id": profile_id,
         "timestamp": "2026-01-01 12:00:00",
@@ -86,14 +72,12 @@ def generate_synthetic_profile(
 
     return df_prof
 
-
 def generate_synthetic_benchmark_dataset(
     n_profiles: int = 50,
-    levels_per_profile: int = 40,
-    anomaly_profile_ratio: float = 0.2,
+    levels_per_profile: int = 35,
+    anomaly_profile_ratio: float = 0.25,
     random_seed: int = 42
 ) -> pd.DataFrame:
-    """Generates a complete multi-profile synthetic CTD dataset."""
     rng = np.random.RandomState(random_seed)
     profiles = []
 
@@ -117,16 +101,15 @@ def generate_synthetic_benchmark_dataset(
 
     return pd.concat(profiles, ignore_index=True)
 
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Synthetic Ocean Profile Generator")
-    parser.add_argument("--profiles", type=int, default=30, help="Number of vertical profiles")
-    parser.add_argument("--levels", type=int, default=30, help="Number of depth levels per profile")
-    parser.add_argument("--output", type=str, default="data/synthetic_benchmark.csv", help="Output file path")
+    parser = argparse.ArgumentParser(description="Synthetic Profile Generator")
+    parser.add_argument("--profiles", type=int, default=30, help="Number of profiles")
+    parser.add_argument("--levels", type=int, default=30, help="Levels per profile")
+    parser.add_argument("--output", type=str, default="data/synthetic_benchmark.csv", help="Output file")
     args = parser.parse_args()
 
     out_p = Path(args.output)
     out_p.parent.mkdir(parents=True, exist_ok=True)
     df_synth = generate_synthetic_benchmark_dataset(n_profiles=args.profiles, levels_per_profile=args.levels)
     df_synth.to_csv(out_p, index=False)
-    print(f"[SUCCESS] Generated {len(df_synth)} synthetic observations across {args.profiles} profiles -> {out_p}")
+    print(f"[SUCCESS] Generated {len(df_synth)} records across {args.profiles} profiles -> {out_p}")

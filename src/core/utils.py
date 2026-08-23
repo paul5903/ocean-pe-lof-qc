@@ -1,25 +1,15 @@
-# -*- coding: utf-8 -*-
-"""
-General Utility Functions:
-Logging, SHA256 file hashing for data provenance, and evaluation helpers.
-"""
 import hashlib
 import logging
 from pathlib import Path
-from typing import Dict, Any
-
 
 def compute_file_sha256(file_path: Path) -> str:
-    """Computes SHA-256 hash of a file for reproducibility and data verification."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(65536), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-
 def setup_logger(name: str, log_file: Path = None, level=logging.INFO) -> logging.Logger:
-    """Configures structured logger with console and optional file handler."""
     logger = logging.getLogger(name)
     logger.setLevel(level)
     logger.propagate = False

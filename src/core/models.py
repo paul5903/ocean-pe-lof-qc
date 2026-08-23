@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Physics-Embedded Local Outlier Factor (PE-LOF) Model Architecture:
-Provides novelty detection, robust scaling, dynamic threshold calibration,
-and statistical bootstrap evaluation.
-"""
 import numpy as np
 import pandas as pd
 from typing import Dict, Any, Tuple, Optional
@@ -21,14 +15,9 @@ from sklearn.metrics import (
     matthews_corrcoef,
     balanced_accuracy_score
 )
-from . import config
-
+from .. import config
 
 class PhysicsEmbeddedLOF:
-    """
-    Physics-Embedded Local Outlier Factor model wrapper for oceanographic QC.
-    """
-
     def __init__(
         self,
         n_neighbors: int = config.N_NEIGHBORS,
@@ -54,31 +43,18 @@ class PhysicsEmbeddedLOF:
         self.is_fitted = False
 
     def fit(self, X_train: np.ndarray) -> "PhysicsEmbeddedLOF":
-        """
-        Fits RobustScaler and LOF novelty estimator on clean training observations.
-        """
         X_scaled = self.scaler.fit_transform(X_train)
         self.lof.fit(X_scaled)
         self.is_fitted = True
         return self
 
     def compute_anomaly_scores(self, X: np.ndarray) -> np.ndarray:
-        """
-        Computes positive anomaly scores where higher values indicate higher abnormality:
-        Score = -score_samples(X)
-        """
         if not self.is_fitted:
             raise RuntimeError("Model must be fitted before computing anomaly scores.")
         X_scaled = self.scaler.transform(X)
-        # scikit-learn's score_samples returns opposite of LOF (inliers large, outliers small negative)
-        scores = -self.lof.score_samples(X_scaled)
-        return scores
+        return -self.lof.score_samples(X_scaled)
 
     def predict(self, X: np.ndarray, threshold: Optional[float] = None) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Predicts binary anomaly flags based on decision threshold.
-        Returns: (y_pred_binary [0 for Normal, 1 for Anomaly], anomaly_scores)
-        """
         t = self.threshold if threshold is None else threshold
         scores = self.compute_anomaly_scores(X)
         y_pred = (scores >= t).astype(int)
@@ -90,12 +66,7 @@ class PhysicsEmbeddedLOF:
         scores: np.ndarray,
         beta: float = 1.0
     ) -> Tuple[float, Dict[str, float]]:
-        """
-        Finds optimal decision threshold maximizing F_beta score on Precision-Recall curve.
-        """
         precisions, recalls, thresholds = precision_recall_curve(y_true, scores)
-
-        # Compute F-beta for all points
         beta_sq = beta ** 2
         denom = (beta_sq * precisions) + recalls
         f_scores = np.zeros_like(precisions)
@@ -103,7 +74,6 @@ class PhysicsEmbeddedLOF:
         f_scores[valid] = (1 + beta_sq) * (precisions[valid] * recalls[valid]) / denom[valid]
 
         best_idx = np.argmax(f_scores)
-        # thresholds array has length len(precisions) - 1
         best_threshold = float(thresholds[min(best_idx, len(thresholds) - 1)])
 
         best_stats = {
@@ -120,11 +90,7 @@ class PhysicsEmbeddedLOF:
         y_pred: np.ndarray,
         y_score: np.ndarray
     ) -> Dict[str, Any]:
-        """
-        Calculates full suite of classification and diagnostic metrics.
-        """
         tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
-
         specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
         sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0.0
         precision = precision_score(y_true, y_pred, zero_division=0)
@@ -133,13 +99,11 @@ class PhysicsEmbeddedLOF:
         bal_acc = balanced_accuracy_score(y_true, y_pred)
         mcc = matthews_corrcoef(y_true, y_pred)
 
-        # ROC-AUC
         try:
             roc_auc = float(roc_auc_score(y_true, y_score))
         except Exception:
             roc_auc = 0.5
 
-        # PR-AUC
         try:
             p_arr, r_arr, _ = precision_recall_curve(y_true, y_score)
             pr_auc = float(auc(r_arr, p_arr))
@@ -173,9 +137,6 @@ class PhysicsEmbeddedLOF:
         ci: float = 0.95,
         random_seed: int = 42
     ) -> Dict[str, Tuple[float, float]]:
-        """
-        Computes 95% Confidence Intervals via non-parametric bootstrapping.
-        """
         rng = np.random.RandomState(random_seed)
         n = len(y_true)
         metrics_dict = {"roc_auc": [], "pr_auc": [], "f1": [], "precision": [], "recall": []}

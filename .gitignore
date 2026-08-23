@@ -2,47 +2,19 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Virtual environments
+# Environments & IDEs
 venv/
 .venv/
 ENV/
 env/
-env.bak/
-venv.bak/
-
-# IDE & Editors
 .vscode/
 .idea/
+.gemini/
 *.swp
 *.swo
 *~
-.gemini/
-
-# Jupyter Notebook checkpoints
 .ipynb_checkpoints
 
 # Environment variables & secrets
@@ -53,28 +25,26 @@ venv.bak/
 *.key
 *.token
 
-# Ignore raw/large binary data files in root data/ and outputs/ only
+# Local runtime & data directories
 data/
 raw_data/
 outputs/
+reports/
 logs/
-*.log
 scratch/
 tmp/
 temp/
 
-# Binary model artifacts
+# Binary models & large caches
 *.joblib
 *.pkl
 *.h5
 *.hdf5
 *.parquet
-
-# Raw NetCDF data files
 *.nc
 *.nc4
 
-# IMPORTANT: Allow all tracked results, reports and test fixtures
+# Explicitly track results and test fixtures
 !results/
 !results/**
 !tests/fixtures/

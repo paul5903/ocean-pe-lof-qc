@@ -1,29 +1,7 @@
-# ==============================================================================
-# MODEL HYPERPARAMETERS & OPTIMIZED OPERATING THRESHOLDS
-# ==============================================================================
-
 model_type: "PhysicsEmbeddedLocalOutlierFactor"
 n_neighbors: 35
 novelty: true
 contamination: 0.08
 metric: "minkowski"
 p: 2
-
-# Calibrated Decision Threshold (Optimized on Validation Set via PR/ROC Curve)
 optimal_threshold: 2.0748
-
-# Scaling & Imputation
-scaler: "RobustScaler"
-imputer_strategy: "median"
-
-# Operating Modes
-threshold_modes:
-  f2_sensitive:
-    description: "Prioritizes Recall / Oceanographic Safety (Catches subtle sensor anomalies)"
-    target_metric: "F2"
-  f1_balanced:
-    description: "Standard balanced precision/recall trade-off"
-    target_metric: "F1"
-  f05_precision:
-    description: "Prioritizes Precision (Minimizes false alarms in operational automated pipelines)"
-    target_metric: "F0.5"
