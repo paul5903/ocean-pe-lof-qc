@@ -53,34 +53,29 @@ venv.bak/
 *.key
 *.token
 
-# Data & Output directories (User should download or generate locally)
+# Ignore raw/large binary data files in root data/ and outputs/ only
 data/
 raw_data/
 outputs/
-reports/
-argo_run/outputs/
-woce_run/outputs/
-woa_run/outputs/
-*.nc
-*.nc4
-*.xlsx
-*.xls
-*.csv
-*.parquet
-*.h5
-*.hdf5
-*.joblib
-# Allow tracked benchmark and international validation results
-!results/**
-!results/**/*.png
-!results/**/*.xlsx
-!results/**/*.csv
-!results/**/*.md
-!tests/fixtures/*.csv
-
-# Logs & Temporary files
 logs/
 *.log
 scratch/
 tmp/
 temp/
+
+# Binary model artifacts
+*.joblib
+*.pkl
+*.h5
+*.hdf5
+*.parquet
+
+# Raw NetCDF data files
+*.nc
+*.nc4
+
+# IMPORTANT: Allow all tracked results, reports and test fixtures
+!results/
+!results/**
+!tests/fixtures/
+!tests/fixtures/**
