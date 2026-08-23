@@ -1,6 +1,6 @@
 # Physics-Embedded Local Outlier Factor (PE-LOF) for Oceanographic Quality Control
 
-[![CI Pipeline](https://github.com/MeoU593/ocean-pe-lof-qc/actions/workflows/ci.yml/badge.svg)](https://github.com/MeoU593/ocean-pe-lof-qc/actions)
+[![CI Pipeline](https://github.com/paul5903/ocean-pe-lof-qc/actions/workflows/ci.yml/badge.svg)](https://github.com/paul5903/ocean-pe-lof-qc/actions)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![DPI: 300](https://img.shields.io/badge/Figures-300%20DPI%20Ready-success.svg)](results/)
@@ -68,7 +68,7 @@ ocean_pe_lof_qc/
 ### Installation
 
 ```bash
-git clone https://github.com/MeoU593/ocean-pe-lof-qc.git
+git clone https://github.com/paul5903/ocean-pe-lof-qc.git
 cd ocean-pe-lof-qc
 
 python -m venv venv
