@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -31,13 +31,17 @@ jobs:
       run: |
         # Stop build if there are Python syntax errors or undefined names
         flake8 src tests --count --select=E9,F63,F7,F82 --show-source --statistics
-        # Exit-zero treats all errors as warnings.
+        # Exit-zero treats all stylistic warnings as non-fatal
         flake8 src tests --count --exit-zero --max-complexity=15 --max-line-length=120 --statistics
 
     - name: Generate synthetic benchmark data
+      env:
+        PYTHONPATH: .
       run: |
-        python src/data_generator.py --samples 500 --output tests/fixtures/synthetic_argo.csv
+        python -m src.data_generator --profiles 20 --output tests/fixtures/synthetic_argo.csv
 
     - name: Run Test Suite
+      env:
+        PYTHONPATH: .
       run: |
         pytest tests/ -v
