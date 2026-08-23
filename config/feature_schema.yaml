@@ -1,0 +1,70 @@
+# ==============================================================================
+# FEATURE SCHEMA SPECIFICATION: 14 PHYSICS-EMBEDDED FEATURES
+# ==============================================================================
+
+features:
+  # Spatial & Depth Coordinates
+  - name: lat
+    type: float
+    description: "Latitude coordinate in degrees (-90 to +90)"
+  - name: lon
+    type: float
+    description: "Longitude coordinate in degrees (0 to 360 or -180 to 180)"
+  - name: depth
+    type: float
+    description: "Observation depth in meters (0 to 6000m)"
+
+  # Primary Core Oceanographic Sensors
+  - name: temperature
+    type: float
+    description: "In-situ seawater temperature in Celsius"
+  - name: pressure
+    type: float
+    description: "In-situ hydrostatic pressure in dbar"
+  - name: sound_vel_direct
+    type: float
+    description: "Acoustic speed in seawater in m/s (sensor or derived)"
+  - name: salinity
+    type: float
+    description: "Practical Salinity in PSU"
+  - name: density
+    type: float
+    description: "In-situ seawater density in kg/m3 (UNESCO EOS-80)"
+
+  # Physics-Informed Derived Residuals & Hydrodynamics
+  - name: sv_mackenzie_residual
+    type: float
+    description: "Absolute acoustic velocity residual against Mackenzie (1981) formulation"
+  - name: pressure_residual
+    type: float
+    description: "Residual between measured pressure and hydrostatic theoretical calculation"
+  - name: pressure_depth_ratio
+    type: float
+    description: "Normalized ratio of pressure to depth (P + 1)/(D + 1)"
+  - name: temp_gradient
+    type: float
+    description: "Logarithmic vertical temperature gradient T / (ln(1 + D) + 1)"
+
+  # Spatial Deviation & Regional Geometry
+  - name: spatial_z_dist
+    type: float
+    description: "Z-score normalized Mahalanobis/Euclidean distance from regional spatial centroid"
+  - name: geo_out_of_bounds_dist
+    type: float
+    description: "Distance penalty outside regional geographic bounding polygon"
+
+ordered_feature_names:
+  - lat
+  - lon
+  - depth
+  - temperature
+  - pressure
+  - sound_vel_direct
+  - salinity
+  - density
+  - sv_mackenzie_residual
+  - pressure_residual
+  - pressure_depth_ratio
+  - temp_gradient
+  - spatial_z_dist
+  - geo_out_of_bounds_dist

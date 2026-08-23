@@ -1,0 +1,44 @@
+# ==============================================================================
+# GLOBAL PROJECT CONFIGURATION: OCEAN PE-LOF BENCHMARK
+# ==============================================================================
+
+project:
+  name: "ocean_pe_lof_qc"
+  version: "2.0.0"
+  description: "Physics-Embedded Local Outlier Factor for Oceanographic Quality Control"
+  organization: "Oceanographic AI Research Team"
+
+# Default Geographic & Depth Boundaries for Spatial Domain Screening
+region:
+  name: "Global_and_Marginal_Seas"
+  lon_min: 0.0
+  lon_max: 360.0
+  lat_min: -90.0
+  lat_max: 90.0
+
+time:
+  start: "1990-01-01"
+  end: "2030-12-31"
+
+# Domain Physical Bounds (IOC/UNESCO/WMO Oceanographic Standards)
+domain_rules:
+  temp_min: -2.5
+  temp_max: 40.0
+  sal_min: 0.0
+  sal_max: 45.0
+  depth_min: 0.0
+  depth_max: 6000.0
+  sound_vel_min: 1350.0
+  sound_vel_max: 1700.0
+  pressure_ratio_approx: 1.019716 # dbar / meter
+  pressure_tol_abs: 20.0
+  pressure_tol_rel: 0.35
+  sound_vel_diff_max: 20.0 # m/s tolerance between direct & Mackenzie equation
+
+execution:
+  dpi: 300
+  export_excel: true
+  export_csv: true
+  bootstrap_iterations: 1000
+  bootstrap_ci: 0.95
+  random_seed: 42
