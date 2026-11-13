@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
 authors = [{ name = "Oceanographic AI Research Team" }]
-keywords = ["oceanography", "quality-control", "anomaly-detection", "local-outlier-factor", "argo", "woce", "woa23"]
+keywords = ["oceanography", "quality-control", "anomaly-detection", "local-outlier-factor", "argo", "woa23"]
 
 dependencies = [
     "numpy>=1.23.0",

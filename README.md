@@ -17,7 +17,7 @@ An open-source benchmark framework implementing **Physics-Embedded Local Outlier
 - **Precision-Recall Threshold Optimization**: Scientific threshold calibration maximizing safety-critical recall ($F_2$) or balanced performance ($F_1$).
 - **Separation of Concerns**:
   - `src/core/`: Shared physics engine, feature extractor, QC rules, and evaluation metrics.
-  - `src/international/`: Automated pipelines for global open-access datasets (Argo GDAC, WOCE CCHDO, NOAA WOA23).
+  - `src/international/`: Automated pipeline for independent Argo GDAC validation and NOAA WOA23 reference matching.
   - `src/regional/`: Pipelines for regional/in-situ CTD survey data with synthetic anomaly generators.
 
 ---
@@ -32,7 +32,7 @@ ocean_pe_lof_qc/
 │   ├── feature_schema.yaml          # 14 physics-embedded feature definitions
 │   └── model_parameters.yaml        # LOF hyperparameters & thresholds
 ├── results/                         # Pre-Generated Publication Assets
-│   ├── international/               # Argo and WOCE validation figures & tables
+│   ├── international/               # Argo validation figures & tables
 │   └── regional_benchmark/          # 6-Model comparison figures & tables
 ├── src/
 │   ├── config.py                    # Dynamic configuration and path manager
@@ -45,7 +45,7 @@ ocean_pe_lof_qc/
 │   │   ├── visualizer.py            # Publication plot generator
 │   │   └── utils.py                 # Logging and file verification
 │   ├── international/               # Global dataset pipelines
-│   │   ├── download_real_data.py    # Downloader for GDAC, NOAA, CCHDO
+│   │   ├── download_real_data.py    # Downloader for GDAC Argo profiles
 │   │   └── run_all_international.py # International pipeline runner
 │   └── regional/                    # Regional / in-situ CTD pipelines
 │       ├── data_generator.py        # Synthetic profile & fault injector
@@ -86,14 +86,14 @@ python -m src.regional.run_regional_pipeline --profiles 50
 python -m src.regional.run_regional_pipeline --data-path data/custom_ctd_survey.xlsx
 ```
 
-### Running International Pipelines (Argo & WOCE)
+### Running the Independent Argo Pipeline
 
 ```bash
 # 1. Download official GDAC Argo profiles
 python -m src.international.download_real_data
 
-# 2. Run independent international evaluation
-python -m src.international.run_all_international --source argo
+# 2. Run independent Argo evaluation
+python -m src.international.run_all_international
 ```
 
 ### Running Test Suite
@@ -108,9 +108,8 @@ pytest tests/ -v
 
 | Dataset / Experiment | ROC-AUC (95% CI) | PR-AUC (95% CI) | F1-Score | Specificity | Sensitivity |
 |---|---|---|---|---|---|
-| **Regional Benchmark** | **0.9976** [0.9961 - 0.9988] | **0.9854** [0.9780 - 0.9912] | **95.00%** | **99.17%** | **99.13%** |
+| **Regional Benchmark** | **0.9976** [0.9949 - 0.9991] | **0.9742** [0.9662 - 0.9792] | **95.00%** | **99.17%** | **99.13%** |
 | **Argo Profiling Floats** | **0.9733** [0.9550 - 0.9944] | **0.8875** [0.8237 - 0.9694] | **80.72%** | **98.29%** | **79.37%** |
-| **WOCE Deep-Sea CTD** | **0.9382** [0.8901 - 0.9966] | **0.1342** [0.0747 - 0.7973] | **32.35%** | **93.64%** | **84.62%** |
 
 ---
 

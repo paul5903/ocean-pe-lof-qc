@@ -54,16 +54,15 @@ def parse_argo_netcdf(nc_file: Path) -> pd.DataFrame:
         ds.close()
 
 def run_international_pipeline(
-    source: str = "argo",
     data_dir: Path = None,
     output_dir: Path = None,
     seed: int = config.RANDOM_SEED
 ):
-    out_dir = output_dir or (config.OUTPUTS_DIR / f"international_{source}")
+    out_dir = output_dir or (config.OUTPUTS_DIR / "international_argo")
     out_dir.mkdir(parents=True, exist_ok=True)
     logger = utils.setup_logger("INTL_PIPELINE", log_file=out_dir / "pipeline.log")
 
-    logger.info(f"Running International Pipeline for {source}...")
+    logger.info("Running independent Argo pipeline...")
     in_dir = data_dir or (config.DATA_DIR / "argo_profiles")
     nc_files = list(in_dir.glob("*.nc")) if in_dir.exists() else []
 
@@ -134,7 +133,7 @@ def run_international_pipeline(
     metrics = model.calculate_evaluation_metrics(y_test, y_test_pred, scores_test)
     ci_results = model.bootstrap_ci(y_test, scores_test, threshold=calib_thresh, n_iterations=500, random_seed=seed)
 
-    logger.info(f"International {source.upper()} ROC-AUC: {metrics['roc_auc']:.4f}, F1: {metrics['f1_score']:.4f}")
+    logger.info(f"International ARGO ROC-AUC: {metrics['roc_auc']:.4f}, F1: {metrics['f1_score']:.4f}")
 
     df_test["pe_lof_score"] = scores_test
     df_test["qc_ai_suspect"] = y_test_pred
@@ -142,7 +141,7 @@ def run_international_pipeline(
     df_test.to_csv(out_dir / "test_predictions.csv", index=False)
 
     summary_df = pd.DataFrame([{
-        "source": source,
+        "source": "argo",
         "test_samples": len(df_test),
         "roc_auc": metrics["roc_auc"],
         "roc_auc_ci_low": ci_results["roc_auc"][0],
@@ -157,14 +156,13 @@ def run_international_pipeline(
     summary_df.to_csv(out_dir / "metrics_summary.csv", index=False)
 
     if len(np.unique(y_test)) > 1:
-        visualizer.plot_roc_and_pr_curves(y_test, scores_test, out_dir / "roc_pr_curve.png", title_suffix=f"({source.upper()})")
-        visualizer.plot_confusion_matrix_heatmap(y_test, y_test_pred, out_dir / "confusion_matrix.png", title=f"Confusion Matrix ({source.upper()})")
+        visualizer.plot_roc_and_pr_curves(y_test, scores_test, out_dir / "roc_pr_curve.png", title_suffix="(ARGO)")
+        visualizer.plot_confusion_matrix_heatmap(y_test, y_test_pred, out_dir / "confusion_matrix.png", title="Confusion Matrix (ARGO)")
 
     logger.info("International pipeline execution complete.")
     return metrics
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="International Pipeline Runner")
-    parser.add_argument("--source", type=str, default="argo", choices=["argo", "woce"], help="Data source")
     args = parser.parse_args()
-    run_international_pipeline(source=args.source)
+    run_international_pipeline()

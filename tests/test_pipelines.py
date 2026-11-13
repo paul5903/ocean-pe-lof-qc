@@ -11,7 +11,6 @@ def test_regional_pipeline_execution(tmp_path):
 
 def test_international_pipeline_execution(tmp_path):
     metrics = run_all_international.run_international_pipeline(
-        source="argo",
         output_dir=tmp_path / "international"
     )
     assert "roc_auc" in metrics
